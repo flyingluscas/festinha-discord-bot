@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  festinha:
+    build:
+      context: .
+      target: development
+    image: festinha-discord-bot
+    container_name: festinha-discord-bot
+    env_file: .env
+    volumes:
+      - ./src:/app/src
