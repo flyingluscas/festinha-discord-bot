@@ -10,16 +10,29 @@ client.on('ready', () => {
   console.info(`Bot running as ${client.user.tag}!`)
 })
 
-client.on('message', (message) => {
-  const { content, author, member, channel } = message
+client.on('message', async (message) => {
+  const { content, author, member, channel, guild } = message
+  const {
+    voice: { channel: voiceChannel },
+  } = member
 
   if (!content.startsWith('-')) {
     return false
   }
 
-  if (!member.voice.channel) {
+  if (!voiceChannel) {
     return channel.send(
-      `${author.username}, you must be on a voice channel to execute this command.`,
+      `**${author.username}**, you must be on a voice channel to execute this command.`,
+    )
+  }
+
+  const permissions = voiceChannel.permissionsFor(client.user)
+  const isMissingRequiredPermissions =
+    !permissions.has('CONNECT') || !permissions.has('SPEAK')
+
+  if (isMissingRequiredPermissions) {
+    return channel.send(
+      `Sorry, but I don't have the required permissions to operate in this server!`,
     )
   }
 
@@ -28,15 +41,16 @@ client.on('message', (message) => {
 
   if (!command) {
     return channel.send(
-      `Sorry ${author.username}, I don't have this command, use -help to see available commands.`,
+      `Sorry **${author.username}**, I don't have this command, use \`-help\` to see available commands.`,
     )
   }
 
   return command({
     content,
+    guildId: guild.id,
+    textChannel: channel,
+    voiceChannel,
     author,
-    member,
-    channel,
   })
 })
 

@@ -1,75 +1,82 @@
-const getSongInfo = require('../helpers/getSongInfo')
-const { setSong, deleteSong, getQueue } = require('../helpers/queue')
 const ytdl = require('ytdl-core-discord')
+const ytsr = require('ytsr')
+const { getQueueForGuild } = require('../queues')
 
-const playMusic = async (message, song) => {
-  const guildId = message.guild.id
-  const serverQueue = getQueue(guildId)
+const getSongName = (content) => content.split(' ').slice(1).join(' ')
 
-  if (!song.url) {
-    serverQueue.voiceChannel.leave()
-    deleteSong(guildId)
-    return message.channel.send(`${message.author.username}, música inválida.`)
+const getSongFromYouTube = async (songName) => {
+  const { results, items } = await ytsr(songName)
+
+  if (!results) {
+    return null
   }
 
-  const streamDispatcher = serverQueue.connection
-    .play(await ytdl(song.url), { type: 'opus' })
+  const [{ title, url }] = items
+
+  if (!url) {
+    return null
+  }
+
+  return { title, url }
+}
+
+const playNextSongInQueue = async (options) => {
+  const { queue, textChannel } = options
+  const { songs, volume, voiceConnection } = queue
+
+  if (!songs.length) {
+    return
+  }
+
+  const [song] = songs
+  const songStream = await ytdl(song.url)
+
+  voiceConnection
+    .play(songStream, { type: 'opus' })
     .on('finish', () => {
-      serverQueue.songs.shift()
-      playMusic(message, serverQueue.songs[0])
+      songs.shift()
+      playNextSongInQueue(options)
     })
+    .setVolume(volume)
 
-  streamDispatcher.setVolume(serverQueue.volume)
-  return message.channel.send(`Tocando: ${song.title}`)
+  return textChannel.send(`Now playing **${song.title}**`)
 }
 
-module.exports = async (message) => {
-  const serverQueue = getQueue(message.guild.id)
-  const voiceChannel = message.member.voice.channel
+const play = async (options) => {
+  const { content, textChannel, voiceChannel, author, guildId } = options
+  const songName = getSongName(content)
 
-  if (!voiceChannel) {
-    return message.channel.send(
-      `${message.author.username}, você precisa estar em um canal de voz para executar este comando.`,
+  if (!songName) {
+    return textChannel.send(
+      `${author.username}, I need a song name or YouTube link!`,
     )
   }
 
-  const permissions = voiceChannel.permissionsFor(message.client.user)
-  const hasNotPermissions =
-    !permissions.has('CONNECT') || !permissions.has('SPEAK')
+  const song = await getSongFromYouTube(songName)
 
-  if (hasNotPermissions) {
-    return message.channel.send(
-      `${message.author.username}, você precisa me dar permissão para entar no canal de voz.`,
+  if (!song) {
+    return textChannel.send(
+      `**${author.username}**, sorry but I couldn't find this song :/`,
     )
   }
 
-  const songName = message.content.replace(/-play\s/, '')
-  const songInfo = await getSongInfo(songName)
-
-  if (serverQueue) {
-    serverQueue.songs.push(songInfo)
-    return message.channel.send(
-      `${songInfo.title} foi adicionada a sua lista! para ver a lista, use o comando -queue`,
-    )
-  }
-
-  const queueContract = {
-    textChannel: message.channel,
+  const queue = await getQueueForGuild({
+    guildId,
+    textChannel,
     voiceChannel,
-    connection: await voiceChannel.join(),
-    songs: [],
-    volume: 0.5,
-    playing: true,
+  })
+
+  if (queue.songs.length) {
+    queue.songs.push(song)
+
+    return textChannel.send(
+      `**${song.title}** was added to the queue! To see all queued songs type \`-queue\`.`,
+    )
   }
 
-  setSong(message.guild.id, queueContract)
-  queueContract.songs.push(songInfo)
+  queue.songs.push(song)
 
-  try {
-    return await playMusic(message, songInfo)
-  } catch (err) {
-    console.log({ err })
-  }
-
-  return message.channel.send('Ainda não tá pronto')
+  return playNextSongInQueue({ queue, textChannel })
 }
+
+module.exports = play
