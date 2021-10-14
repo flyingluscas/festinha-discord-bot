@@ -3,6 +3,7 @@ const play = require('./play')
 const queue = require('./queue')
 const skip = require('./skip')
 const clear = require('./clear')
+const stop = require('./stop')
 
 module.exports = {
   help,
@@ -10,4 +11,5 @@ module.exports = {
   queue,
   skip,
   clear,
+  stop,
 }
