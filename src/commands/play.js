@@ -56,7 +56,7 @@ const play = async (options) => {
 
   if (!song) {
     return textChannel.send(
-      `**${author.username}**, sorry but I couldn't find this song :/`,
+      `Sorry **${author.username}**, but I couldn't find this song :/`,
     )
   }
 

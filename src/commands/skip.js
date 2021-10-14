@@ -7,7 +7,7 @@ const skip = async (options) => {
 
   if (!queue || queue.songs.length <= 1) {
     return textChannel.send(
-      `Sorry **${author.username}**, there are no songs left to skip ;)`,
+      `**${author.username}**, there are no songs left to skip ;)`,
     )
   }
 
