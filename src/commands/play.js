@@ -1,6 +1,6 @@
 const ytdl = require('ytdl-core-discord')
 const ytsr = require('ytsr')
-const { getQueueForGuild } = require('../queues')
+const { getOrCreateQueueForGuild } = require('../queues')
 
 const getSongName = (content) => content.split(' ').slice(1).join(' ')
 
@@ -60,7 +60,7 @@ const play = async (options) => {
     )
   }
 
-  const queue = await getQueueForGuild({
+  const queue = await getOrCreateQueueForGuild({
     guildId,
     textChannel,
     voiceChannel,

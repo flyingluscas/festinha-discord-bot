@@ -1,15 +1,11 @@
 const { getQueueForGuild } = require('../queues')
 
 const skip = async (options) => {
-  const { guildId, textChannel, voiceChannel, author } = options
+  const { guildId, textChannel, author } = options
 
-  const queue = await getQueueForGuild({
-    guildId,
-    textChannel,
-    voiceChannel,
-  })
+  const queue = await getQueueForGuild(guildId)
 
-  if (queue.songs.length <= 1) {
+  if (!queue || queue.songs.length <= 1) {
     return textChannel.send(
       `Sorry **${author.username}**, there are no songs left to skip ;)`,
     )

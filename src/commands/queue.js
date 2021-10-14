@@ -1,20 +1,29 @@
-const { getQueue } = require('../helpers/queue')
+const { getQueueForGuild } = require('../queues')
 
-module.exports = (message) => {
-  const serverQueue = getQueue(message.guild.id)
+const queue = async (options) => {
+  const { guildId, textChannel, author } = options
 
-  if (!serverQueue) {
-    return message.channel.send('Adicione uma música.')
-  }
-  if (!serverQueue.songs.length > 0) {
-    return message.channel.send(
-      `${message.author.username}, a fila está vazia. Para adicionar novas músicas, experimente o comando -play`,
+  const queue = await getQueueForGuild(guildId)
+
+  if (!queue || !queue.songs.length) {
+    return textChannel.send(
+      `**${author.username}**, the queue is empty, try the \`-play\` command to add more songs!`,
     )
   }
 
-  return message.channel.send(
-    `**Tá na mão!**:\n${serverQueue.songs
-      .map((song) => song.title)
-      .join('\n')}`,
-  )
+  const songsList = queue.songs
+    .map(({ title }, index) => {
+      const number = index + 1
+      const songTitle = index === 0 ? `**${title}**` : title
+
+      return `${number}. ${songTitle}`
+    })
+    .join('\n')
+
+  return textChannel.send(`
+**(${queue.songs.length}) Songs:**
+${songsList}
+  `)
 }
+
+module.exports = queue

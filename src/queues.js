@@ -1,8 +1,8 @@
 const queues = {}
 
-const getQueueForGuild = async (options) => {
+const getOrCreateQueueForGuild = async (options) => {
   const { guildId, textChannel, voiceChannel } = options
-  const queue = queues[guildId]
+  const queue = getQueueForGuild(guildId)
 
   if (queue) {
     return queue
@@ -19,9 +19,12 @@ const getQueueForGuild = async (options) => {
     playing: true,
   }
 
-  return getQueueForGuild(options)
+  return getOrCreateQueueForGuild(options)
 }
+
+const getQueueForGuild = (guildId) => queues[guildId] || null
 
 module.exports = {
   getQueueForGuild,
+  getOrCreateQueueForGuild,
 }
