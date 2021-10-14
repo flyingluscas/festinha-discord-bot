@@ -3,8 +3,8 @@ const ytsr = require('ytsr')
 module.exports = async (songName) => {
   if (!songName) {
     return {}
-  } 
-  
+  }
+
   const results = await ytsr(songName)
   const bestMatch = results.items[0] || {}
 
@@ -14,6 +14,6 @@ module.exports = async (songName) => {
 
   return {
     title: bestMatch.title,
-    url: bestMatch.url
+    url: bestMatch.url,
   }
 }

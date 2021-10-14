@@ -7,5 +7,5 @@ module.exports = {
   '-hello': hello,
   '-play': play,
   '-skip': skip,
-  '-queue': queue
+  '-queue': queue,
 }

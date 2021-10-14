@@ -3,7 +3,6 @@ const setSong = (id, contruct) => queue.set(id, contruct)
 const deleteSong = (id) => queue.delete(id)
 const getQueue = (id) => queue.get(id)
 
-
 // {
 //   textChannel: message.channel,
 //   voiceChannel,
@@ -17,5 +16,5 @@ module.exports = {
   queue,
   setSong,
   deleteSong,
-  getQueue
+  getQueue,
 }

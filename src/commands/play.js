@@ -1,5 +1,5 @@
-const getSongInfo = require("../helpers/getSongInfo")
-const { setSong, deleteSong, getQueue } = require("../helpers/queue")
+const getSongInfo = require('../helpers/getSongInfo')
+const { setSong, deleteSong, getQueue } = require('../helpers/queue')
 const ytdl = require('ytdl-core-discord')
 
 const playMusic = async (message, song) => {
@@ -13,7 +13,7 @@ const playMusic = async (message, song) => {
   }
 
   const streamDispatcher = serverQueue.connection
-    .play(await ytdl(song.url), { type: "opus" })
+    .play(await ytdl(song.url), { type: 'opus' })
     .on('finish', () => {
       serverQueue.songs.shift()
       playMusic(message, serverQueue.songs[0])
@@ -28,14 +28,19 @@ module.exports = async (message) => {
   const voiceChannel = message.member.voice.channel
 
   if (!voiceChannel) {
-    return message.channel.send(`${message.author.username}, você precisa estar em um canal de voz para executar este comando.`)
+    return message.channel.send(
+      `${message.author.username}, você precisa estar em um canal de voz para executar este comando.`,
+    )
   }
 
   const permissions = voiceChannel.permissionsFor(message.client.user)
-  const hasNotPermissions = !permissions.has('CONNECT') || !permissions.has('SPEAK')
+  const hasNotPermissions =
+    !permissions.has('CONNECT') || !permissions.has('SPEAK')
 
   if (hasNotPermissions) {
-    return message.channel.send(`${message.author.username}, você precisa me dar permissão para entar no canal de voz.`)
+    return message.channel.send(
+      `${message.author.username}, você precisa me dar permissão para entar no canal de voz.`,
+    )
   }
 
   const songName = message.content.replace(/-play\s/, '')
@@ -43,7 +48,9 @@ module.exports = async (message) => {
 
   if (serverQueue) {
     serverQueue.songs.push(songInfo)
-    return message.channel.send(`${songInfo.title} foi adicionada a sua lista! para ver a lista, use o comando -queue`)
+    return message.channel.send(
+      `${songInfo.title} foi adicionada a sua lista! para ver a lista, use o comando -queue`,
+    )
   }
 
   const queueContract = {
@@ -51,14 +58,14 @@ module.exports = async (message) => {
     voiceChannel,
     connection: await voiceChannel.join(),
     songs: [],
-    volume: 5,
-    playing: true
+    volume: 0.5,
+    playing: true,
   }
 
   setSong(message.guild.id, queueContract)
   queueContract.songs.push(songInfo)
 
-  try { 
+  try {
     return await playMusic(message, songInfo)
   } catch (err) {
     console.log({ err })
