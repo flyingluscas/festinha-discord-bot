@@ -12,7 +12,11 @@ const stop = async (options) => {
   }
 
   queue.songs = []
-  queue.voiceConnection.dispatcher.end()
+
+  if (queue.voiceConnection.dispatcher) {
+    queue.voiceConnection.dispatcher.end()
+  }
+
   queue.voiceChannel.leave()
 
   return textChannel.send(

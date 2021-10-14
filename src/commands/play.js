@@ -1,8 +1,9 @@
 const ytdl = require('ytdl-core-discord')
+const ytpl = require('ytpl')
 const ytsr = require('ytsr')
 const { getOrCreateQueueForGuild } = require('../queues')
 
-const getSongName = (content) => content.split(' ').slice(1).join(' ')
+const getSongParameter = (content) => content.split(' ').slice(1).join(' ')
 
 const getSongFromYouTube = async (songName) => {
   const { results, items } = await ytsr(songName)
@@ -42,21 +43,35 @@ const playNextSongInQueue = async (options) => {
   return textChannel.send(`Now playing **${song.title}**`)
 }
 
-const play = async (options) => {
-  const { content, textChannel, voiceChannel, author, guildId } = options
-  const songName = getSongName(content)
+const isYouTubeChannelOrPlaylist = (songParameter) =>
+  /(list=[\w\W\d\D]+|\/channel\/[\w\W\d\D]+)/.test(songParameter)
 
-  if (!songName) {
-    return textChannel.send(
-      `${author.username}, I need a song name or YouTube link!`,
-    )
+const getSongsFromYouTubeChannelOrPlaylist = async (songParameter) => {
+  const { title, items } = await ytpl(songParameter)
+
+  if (!items || !items.length) {
+    return {
+      title: null,
+      songs: [],
+    }
   }
 
-  const song = await getSongFromYouTube(songName)
+  return {
+    title,
+    songs: items.map(({ title, shortUrl }) => ({
+      title,
+      url: shortUrl,
+    })),
+  }
+}
 
-  if (!song) {
+const play = async (options) => {
+  const { content, textChannel, voiceChannel, author, guildId } = options
+  const songParameter = getSongParameter(content)
+
+  if (!songParameter) {
     return textChannel.send(
-      `Sorry **${author.username}**, but I couldn't find this song :/`,
+      `${author.username}, I need a song name or YouTube link!`,
     )
   }
 
@@ -65,6 +80,38 @@ const play = async (options) => {
     textChannel,
     voiceChannel,
   })
+
+  if (isYouTubeChannelOrPlaylist(songParameter)) {
+    const { title, songs } = await getSongsFromYouTubeChannelOrPlaylist(
+      songParameter,
+    )
+
+    if (!songs.length) {
+      return textChannel.send(
+        `Sorry **${author.username}**, but I couldn't find any songs :/`,
+      )
+    }
+
+    if (queue.songs.length) {
+      queue.songs.push(...songs)
+
+      return textChannel.send(
+        `Playlist **${title}** was added to the queue! To see all queued songs type \`-queue\`.`,
+      )
+    }
+
+    queue.songs.push(...songs)
+
+    return playNextSongInQueue({ queue, textChannel })
+  }
+
+  const song = await getSongFromYouTube(songParameter)
+
+  if (!song) {
+    return textChannel.send(
+      `Sorry **${author.username}**, but I couldn't find this song :/`,
+    )
+  }
 
   if (queue.songs.length) {
     queue.songs.push(song)
