@@ -1,27 +1,43 @@
-const Discord = require('discord.js')
-const { token, prefix } = require('./config/config')
-const commands = require('./commands/index')
+const { Client } = require('discord.js')
 
-const client = new Discord.Client()
+const commands = require('./commands')
+
+const { DISCORD_TOKEN } = process.env
+
+const client = new Client()
 
 client.on('ready', () => {
-  console.log(`Logged in as ${client.user.tag}!`)
+  console.info(`Bot running as ${client.user.tag}!`)
 })
 
-client.on('message', (msg) => {
-  const [message] = msg.content.split(' ')
-  if (message.startsWith(prefix)) {
-    const command = commands[message] || null
+client.on('message', (message) => {
+  const { content, author, member, channel } = message
 
-    if (!command) {
-      return msg.channel.send(
-        `Meu caro amigo ${msg.author.username}, não tenho este comando disponível!`,
-      )
-    }
-
-    return command(msg)
+  if (!content.startsWith('-')) {
+    return false
   }
-  return false
+
+  if (!member.voice.channel) {
+    return channel.send(
+      `${author.username}, you must be on a voice channel to execute this command.`,
+    )
+  }
+
+  const commandName = content.split(' ').shift().substr(1)
+  const command = commands[commandName]
+
+  if (!command) {
+    return channel.send(
+      `Sorry ${author.username}, I don't have this command, use -help to see available commands.`,
+    )
+  }
+
+  return command({
+    content,
+    author,
+    member,
+    channel,
+  })
 })
 
-client.login(token)
+client.login(DISCORD_TOKEN)

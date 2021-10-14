@@ -2,8 +2,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "prettier:check": "prettier --check .",
-    "prettier:fix": "prettier --write ."
+    "prettier:check": "prettier --check '**/*.js'",
+    "prettier:fix": "prettier --write '**/*.js'"
   },
   "dependencies": {
     "@discordjs/opus": "^0.5.3",
