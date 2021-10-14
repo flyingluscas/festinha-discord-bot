@@ -24,7 +24,10 @@ const getOrCreateQueueForGuild = async (options) => {
 
 const getQueueForGuild = (guildId) => queues[guildId] || null
 
+const destroyQueue = (guildId) => delete queues[guildId]
+
 module.exports = {
   getQueueForGuild,
   getOrCreateQueueForGuild,
+  destroyQueue,
 }

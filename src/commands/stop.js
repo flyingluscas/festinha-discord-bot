@@ -1,4 +1,4 @@
-const { getQueueForGuild } = require('../queues')
+const { getQueueForGuild, destroyQueue } = require('../queues')
 
 const stop = async (options) => {
   const { guildId, textChannel, author } = options
@@ -18,6 +18,8 @@ const stop = async (options) => {
   }
 
   queue.voiceChannel.leave()
+
+  destroyQueue(guildId)
 
   return textChannel.send(
     `**${author.username}**, the queue has been stoped ;)`,
