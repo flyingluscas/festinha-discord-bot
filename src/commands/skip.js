@@ -1,20 +1,21 @@
-const { getQueue } = require('../helpers/queue')
+const { getQueueForGuild } = require('../queues')
 
-module.exports = (message) => {
-  const serverQueue = getQueue(message.guild.id)
-  const voiceChannel = message.member.voice.channel
+const skip = async (options) => {
+  const { guildId, textChannel, voiceChannel, author } = options
 
-  if (!voiceChannel) {
-    return message.channel.send(
-      `${message.author.username}, você precisa estar em um canal de voz para pular uma música.`,
+  const queue = await getQueueForGuild({
+    guildId,
+    textChannel,
+    voiceChannel,
+  })
+
+  if (queue.songs.length <= 1) {
+    return textChannel.send(
+      `Sorry **${author.username}**, there are no songs left to skip ;)`,
     )
   }
 
-  if (!serverQueue) {
-    return message.channel.send(
-      `${message.author.username}, não existe músicas disponíveis para pular na fila.`,
-    )
-  }
-
-  serverQueue.connection.dispatcher.end()
+  queue.voiceConnection.dispatcher.end()
 }
+
+module.exports = skip
