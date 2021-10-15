@@ -11,7 +11,10 @@ const queue = async (options) => {
     )
   }
 
+  const MAX_SONGS_TO_SHOW = 15
+
   const songsList = queue.songs
+    .slice(0, MAX_SONGS_TO_SHOW)
     .map(({ title }, index) => {
       const number = index + 1
       const songTitle = index === 0 ? `**${title}**` : title
@@ -20,8 +23,13 @@ const queue = async (options) => {
     })
     .join('\n')
 
+  const title =
+    queue.songs.length > MAX_SONGS_TO_SHOW
+      ? `(${MAX_SONGS_TO_SHOW} - ${queue.songs.length}) Songs`
+      : `(${queue.songs.length}) Songs`
+
   return textChannel.send(`
-**(${queue.songs.length}) Songs:**
+**${title}**
 ${songsList}
   `)
 }

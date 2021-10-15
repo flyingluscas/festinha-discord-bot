@@ -51,6 +51,12 @@ client.on('message', async (message) => {
     textChannel: channel,
     voiceChannel,
     author,
+  }).catch((error) => {
+    console.error(error)
+
+    return channel.send(
+      `Sorry **${author.username}**, but something went wrong :(.`,
+    )
   })
 })
 

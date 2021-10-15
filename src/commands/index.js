@@ -4,6 +4,7 @@ const queue = require('./queue')
 const skip = require('./skip')
 const clear = require('./clear')
 const stop = require('./stop')
+const shuffle = require('./shuffle')
 
 module.exports = {
   help,
@@ -12,4 +13,5 @@ module.exports = {
   skip,
   clear,
   stop,
+  shuffle,
 }

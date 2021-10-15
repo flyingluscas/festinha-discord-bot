@@ -13,5 +13,5 @@ docker run \
   --env DISCORD_TOKEN=<SEU_TOKEN> \
   --restart unless-stopped \
   --detach \
-  flyingluscas/festinha-discord-bot:v1.0.2
+  flyingluscas/festinha-discord-bot:v1.1.0
 ```
