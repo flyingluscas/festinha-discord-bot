@@ -70,9 +70,15 @@ const play = async (options) => {
   const songParameter = getSongParameter(content)
 
   if (!songParameter) {
-    return textChannel.send(
-      `${author.username}, I need a song name or YouTube link!`,
-    )
+    const defaultSongLink = 'https://www.youtube.com/watch?v=z9jmzzESl8k'
+
+    return play({
+      content: `-play ${defaultSongLink}`,
+      textChannel,
+      voiceChannel,
+      author,
+      guildId,
+    })
   }
 
   const queue = await getOrCreateQueueForGuild({
