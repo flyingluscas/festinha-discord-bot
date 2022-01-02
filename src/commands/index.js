@@ -5,6 +5,8 @@ const skip = require('./skip')
 const clear = require('./clear')
 const stop = require('./stop')
 const shuffle = require('./shuffle')
+const pause = require('./pause')
+const resume = require('./resume')
 
 module.exports = {
   help,
@@ -14,4 +16,6 @@ module.exports = {
   clear,
   stop,
   shuffle,
+  pause,
+  resume,
 }

@@ -26,11 +26,15 @@ const playNextSongInQueue = async (options) => {
   const { songs, volume, voiceConnection } = queue
 
   if (!songs.length) {
+    queue.playing = false
+
     return
   }
 
   const [song] = songs
   const songStream = await ytdl(song.url)
+
+  queue.playing = true
 
   voiceConnection
     .play(songStream, { type: 'opus' })

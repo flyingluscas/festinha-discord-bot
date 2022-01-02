@@ -28,8 +28,10 @@ const queue = async (options) => {
       ? `(${MAX_SONGS_TO_SHOW} - ${queue.songs.length}) Songs`
       : `(${queue.songs.length}) Songs`
 
+  const queueStatus = queue.playing === true ? 'Playing' : 'Paused'
+
   return textChannel.send(`
-**${title}**
+**${title} | ${queueStatus}**
 ${songsList}
   `)
 }
