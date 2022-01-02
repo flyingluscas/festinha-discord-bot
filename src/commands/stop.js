@@ -5,7 +5,7 @@ const stop = async (options) => {
 
   const queue = await getQueueForGuild(guildId)
 
-  if (!queue || !queue.songs.length) {
+  if (!queue) {
     return textChannel.send(
       `**${author.username}**, there is no queue to stop ;)`,
     )
