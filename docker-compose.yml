@@ -8,5 +8,6 @@ services:
     image: festinha-discord-bot
     container_name: festinha-discord-bot
     env_file: .env
+    restart: unless-stopped
     volumes:
       - ./src:/app/src
